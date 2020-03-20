@@ -1,6 +1,6 @@
-from plyfile import PlyData
+#from plyfile import PlyData
 import numpy as np
-
+"""
 #Loading point clouds from file
 plydata = PlyData.read('test.ply')
 x_points = plydata['vertex']['x']
@@ -20,10 +20,10 @@ q = np.array([x_points, y_points, z_points]).T
 def sample(point_cloud, n):# n sample size
     return point_cloud[0:n, :]
 
-
+"""
 
 #Comparing each point in one point cloud to all in other
-def nearest_point(P, Q):
+def nearest_neighbor(P, Q):
     dis = np.zeros(P.shape[0]) # Dist is array of distances
     index = np.zeros(Q.shape[0], dtype = np.int)
     for i in range(P.shape[0]):
@@ -35,9 +35,12 @@ def nearest_point(P, Q):
                 index[i] = j
         dis[i] = minDis
     return dis, index
+# returns the minimal distances for all P points to the Q points and the indeces of Q points
 
+"""
 
 q =sample(q,50)
 p =sample(p,50)
-dis, index = nearest_point(p,q)
+dis, index = nearest_neighbor(p,q)
 print(np.mean(dis))
+"""
