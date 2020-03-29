@@ -41,7 +41,7 @@ def nearest_neighbor(P, Q):
 
 
 def nearest_neighbor_2(P,Q):
-    nbrs = NearestNeighbors(n_neighbors=1)
+    nbrs = NearestNeighbors(n_neighbors=1, algorithm='ball_tree')
     nbrs.fit(Q)
     distances, indices = nbrs.kneighbors(P, return_distance=True)
     return distances.ravel(), indices.ravel()

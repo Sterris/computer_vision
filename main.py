@@ -10,9 +10,11 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 from optimal_transform import optimal_transform 
-from nearest_neighbor import nearest_neighbor  
+from nearest_neighbor import nearest_neighbor, nearest_neighbor_2
 from pyntcloud import PyntCloud
 import sys
+import time
+
 
 
 
@@ -21,7 +23,7 @@ import sys
     #x2 y2 z2
     
 
-def icp(src, dst, maxIteration=100, tolerance=0.001, controlPoints=100):
+def icp(src, dst, maxIteration=100, tolerance=0.001, controlPoints=300):
     r = np.array([[ 2.22044605e-16, -1.00000000e+00,  0.00000000e+00],
                [ 1.00000000e+00,  2.22044605e-16,  0.00000000e+00],
                [ 0.00000000e+00,  0.00000000e+00,  1.00000000e+00]])
@@ -58,7 +60,7 @@ def icp(src, dst, maxIteration=100, tolerance=0.001, controlPoints=100):
     plt.figure()
     for i in range(maxIteration):
         print("Iteration : " + str(i) + " with Err : " + str(lastErr))
-        dis, index = nearest_neighbor(P, Q)
+        dis, index = nearest_neighbor_2(P, Q)
         #print("this:",Q)
         R, T = optimal_transform(P, Q[index,:])
         
@@ -83,5 +85,11 @@ def icp(src, dst, maxIteration=100, tolerance=0.001, controlPoints=100):
     R, T = optimal_transform(A, np.array(A))
     
     return R, T, A
-R, T, A = icp("test.ply","test2.ply")
+
+
+
+
+start_time = time.time()
+R, T, A = icp("test.ply","test.ply")
 np.savetxt('result_matrix.txt',A,fmt='%.2f')
+print("--- %s seconds ---" % (time.time() - start_time))
