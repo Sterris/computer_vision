@@ -23,13 +23,13 @@ import time
     #x2 y2 z2
     
 
-def icp(src, dst, maxIteration=100, tolerance=0.001, controlPoints=300):
+def icp(src, dst, maxIteration=500, tolerance=0.01, controlPoints=40000):
     r = np.array([[ 2.22044605e-16, -1.00000000e+00,  0.00000000e+00],
                [ 1.00000000e+00,  2.22044605e-16,  0.00000000e+00],
                [ 0.00000000e+00,  0.00000000e+00,  1.00000000e+00]])
     
     A = np.array(PyntCloud.from_file(src).points)[:,0:3]
-    np.savetxt('starting_matrix.txt',A,fmt='%.2f')
+    #np.savetxt('starting_matrix.txt',A,fmt='%.2f')
     B = np.array(PyntCloud.from_file(dst).points)[:,0:3]
     B = np.dot(r, B.T).T + 200
     
@@ -45,6 +45,16 @@ def icp(src, dst, maxIteration=100, tolerance=0.001, controlPoints=300):
     # extracting the random points
     P = np.array([A[i] for i in sampleA])
     Q = np.array([B[i] for i in sampleB])
+    
+    """
+    #point cloud for plotting - not needed with the new fast near neighbour
+    sampleApl = random.sample(range(A.shape[0]), int(min(A.shape[0], B.shape[0])/3))
+    sampleBpl = random.sample(range(B.shape[0]),int(min(A.shape[0], B.shape[0])/3))
+    Ppl = np.array([A[i] for i in sampleApl])
+    Qpl = np.array([B[i] for i in sampleBpl])
+    """
+    
+    
     """  
     else:
         length = A.shape[0]
@@ -68,16 +78,25 @@ def icp(src, dst, maxIteration=100, tolerance=0.001, controlPoints=300):
         A = np.dot(R, A.T).T + np.array([T for j in range(A.shape[0])])
         
         P = np.dot(R, P.T).T + np.array([T for j in range(P.shape[0])])
+        
 
         meanErr = np.sum(dis) / dis.shape[0]
+        print(lastErr - meanErr)
         if abs(lastErr - meanErr) < tolerance:
-            break
+            if lastErr > 5:
+                R = [[-1 ,0 ,0],[ 0,-1,0],[0,0,1]]
+                A = np.dot(R, A.T).T
+                P = np.dot(R, P.T).T
+            else:
+                break
         lastErr = meanErr
+        
+        
         
         # visualization
         ax = plt.subplot(1, 1, 1, projection='3d')
-        ax.scatter(P[:, 0], P[:, 1], P[:, 2], c='r')
-        ax.scatter(Q[:, 0], Q[:, 1], Q[:, 2], c='g')
+        ax.scatter(P[:, 0], P[:, 1], P[:, 2], c='r',s=0.05)
+        ax.scatter(Q[:, 0], Q[:, 1], Q[:, 2], c='g',s=0.05)
         plt.pause(0.5)
     plt.show(block = False)
         
@@ -91,5 +110,6 @@ def icp(src, dst, maxIteration=100, tolerance=0.001, controlPoints=300):
 
 start_time = time.time()
 R, T, A = icp("test.ply","test.ply")
-np.savetxt('result_matrix.txt',A,fmt='%.2f')
+#np.savetxt('result_matrix.txt',A,fmt='%.2f')
 print("--- %s seconds ---" % (time.time() - start_time))
+print(R)
