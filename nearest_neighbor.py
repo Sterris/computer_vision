@@ -1,5 +1,7 @@
 #from plyfile import PlyData
 import numpy as np
+from sklearn.neighbors import NearestNeighbors
+
 """
 #Loading point clouds from file
 plydata = PlyData.read('test.ply')
@@ -36,6 +38,17 @@ def nearest_neighbor(P, Q):
         dis[i] = minDis
     return dis, index
 # returns the minimal distances for all P points to the Q points and the indeces of Q points
+
+
+def nearest_neighbor_2(P,Q):
+    nbrs = NearestNeighbors(n_neighbors=1)
+    nbrs.fit(Q)
+    distances, indices = nbrs.kneighbors(P, return_distance=True)
+    return distances.ravel(), indices.ravel()
+
+
+
+
 
 """
 
