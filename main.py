@@ -24,7 +24,7 @@ import time
     #x2 y2 z2
     
 
-def icp(src, dst, maxIteration=500, tolerance=0.01, controlPoints=40000):
+def icp(src, dst, maxIteration=20, tolerance=0.01, controlPoints=40000):
     r = np.array([[ 2.22044605e-16, -1.00000000e+00,  0.00000000e+00],
                [ 1.00000000e+00,  2.22044605e-16,  0.00000000e+00],
                [ 0.00000000e+00,  0.00000000e+00,  1.00000000e+00]])
@@ -84,7 +84,6 @@ def icp(src, dst, maxIteration=500, tolerance=0.01, controlPoints=40000):
         
 
         meanErr = np.sum(dis) / dis.shape[0]
-        print(lastErr - meanErr)
         if abs(lastErr - meanErr) < tolerance:
             if lastErr > 5:
                 R = [[-1 ,0 ,0],[ 0,-1,0],[0,0,1]]
@@ -94,8 +93,7 @@ def icp(src, dst, maxIteration=500, tolerance=0.01, controlPoints=40000):
                 break
         lastErr = meanErr
         errs[i] = meanErr
-        
-        
+
         
         # visualization
         ax = plt.subplot(1, 1, 1, projection='3d')
@@ -107,7 +105,7 @@ def icp(src, dst, maxIteration=500, tolerance=0.01, controlPoints=40000):
     # backtracking the overall transformation
     R, T = optimal_transform(A, np.array(A))
     
-    return R, T, A
+    return R, T, A, errs
 
 
 def plot(errs, time):
@@ -123,12 +121,12 @@ def plot(errs, time):
 
 
 start_time = time.time()
-R, T, A = icp("test.ply","test.ply")
+R, T, A, errs = icp("test.ply","test.ply")
 time = time.time() - start_time
 #print("--- %s seconds ---" % (time.time() - start_time))
 plot(errs, time)
 
 
 #np.savetxt('result_matrix.txt',A,fmt='%.2f')
-print("--- %s seconds ---" % (time.time() - start_time))
-print(R)
+
+
