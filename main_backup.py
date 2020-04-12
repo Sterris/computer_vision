@@ -168,3 +168,4 @@ with imageio.get_writer('gifs/andreadm2.gif', mode='I',duration = 0.5) as writer
     for filename in files:
         image = imageio.imread('plots/'+filename)
         writer.append_data(image)
+
