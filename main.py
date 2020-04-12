@@ -9,6 +9,7 @@ import time
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+import matplotlib
 from optimal_transform import optimal_transform 
 from nearest_neighbor import nearest_neighbor, nearest_neighbor_2
 from pyntcloud import PyntCloud
@@ -68,10 +69,12 @@ def icp(src, dst, maxIteration=500, tolerance=0.01, controlPoints=40000):
             Q = B
     """
     plt.figure()
+
+    errs = np.zeros(maxIteration)
+
     for i in range(maxIteration):
         print("Iteration : " + str(i) + " with Err : " + str(lastErr))
         dis, index = nearest_neighbor_2(P, Q)
-        #print("this:",Q)
         R, T = optimal_transform(P, Q[index,:])
         
         # applying the step rotation and translation found
@@ -90,6 +93,7 @@ def icp(src, dst, maxIteration=500, tolerance=0.01, controlPoints=40000):
             else:
                 break
         lastErr = meanErr
+        errs[i] = meanErr
         
         
         
@@ -106,10 +110,25 @@ def icp(src, dst, maxIteration=500, tolerance=0.01, controlPoints=40000):
     return R, T, A
 
 
+def plot(errs, time):
+    np.trim_zeros(errs)
+    itrs = np.linspace(1, len(errs), num=len(errs))
+    plt.plot(itrs, errs)
+    plt.xlabel('Iteration number')
+    plt.xticks()
+    plt.ylabel('Error')
+    print("Total iterations: ", len(errs), "----- Total time: ", time, "----- Final error: ", errs[-1])
+    #plt.text(0.5, 0.5, str(time))
+    plt.show()
 
 
 start_time = time.time()
 R, T, A = icp("test.ply","test.ply")
+time = time.time() - start_time
+#print("--- %s seconds ---" % (time.time() - start_time))
+plot(errs, time)
+
+
 #np.savetxt('result_matrix.txt',A,fmt='%.2f')
 print("--- %s seconds ---" % (time.time() - start_time))
 print(R)
