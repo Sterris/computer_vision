@@ -30,7 +30,7 @@ print("--- %s seconds ---" % (time.time() - start_time))
 
 #creates gif
 numbers = re.compile(r'(\d+)')
-with imageio.get_writer('gifs/andreadm2.gif', mode='I',duration = 0.5) as writer:
+with imageio.get_writer('gifs/andreadm3.gif', mode='I',duration = 0.5) as writer:
     files = sorted(os.listdir('plots'), key= numericalSort)
     if files.count(".DS_Store")!=0:
         files.remove(".DS_Store")

@@ -53,21 +53,23 @@ def icp(src, dst, maxIteration=500, tolerance=0.01, controlPoints=10000):
     
     
     #initial rotation based on the principal vectors
-    pca = PCA(n_components=2)
-    pca.fit(A)
-    v1 = np.array(pca.components_[0])
-    a = v1/np.linalg.norm(v1)
-    pca = PCA(n_components=2)
-    pca.fit(B)
-    v2 = np.array(pca.components_[0])
-    b = v2/np.linalg.norm(v2)
-    n = np.cross(a,b)
     
-    I = np.array([[1 ,0 ,0],[ 0,1,0],[0,0,1]])
-    nc =np.array( [[ 0,-n[2] ,n[1]],[ n[2],0,-n[0]],[-n[1],n[0],0]])
-    initR = I + nc + np.divide(np.matmul(nc,nc),(1+np.dot(a,b)))
-    
-    A = np.dot(initR, A.T).T
+    for i in range (0,2):
+        pca = PCA(n_components=2)
+        pca.fit(A)
+        v1 = np.array(pca.components_[i])
+        a = v1/np.linalg.norm(v1)
+        pca = PCA(n_components=2)
+        pca.fit(B)
+        v2 = np.array(pca.components_[i])
+        b = v2/np.linalg.norm(v2)
+        n = np.cross(a,b)
+        
+        I = np.array([[1 ,0 ,0],[ 0,1,0],[0,0,1]])
+        nc =np.array( [[ 0,-n[2] ,n[1]],[ n[2],0,-n[0]],[-n[1],n[0],0]])
+        initR = I + nc + np.divide(np.matmul(nc,nc),(1+np.dot(a,b)))
+        
+        A = np.dot(initR, A.T).T
     T = np.transpose( np.mean(B, axis = 0) - np.mean(A, axis = 0))
     A = A + np.array([T for j in range(A.shape[0])])
  
