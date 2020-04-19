@@ -10,45 +10,18 @@ import random
 import matplotlib.pyplot as plt
 from optimal_transform import optimal_transform 
 from nearest_neighbor import nearest_neighbor, nearest_neighbor_2
-from pyntcloud import PyntCloud
 from sklearn.decomposition import PCA
-import math
 
-def icp(src, dst, maxIteration=500, tolerance=0.01, controlPoints=10000):
-    r1 = random.random()*2*math.pi
-    r2 = random.random()*2*math.pi
-    r3 = random.random()*2*math.pi
+def icp(src, dst, maxIteration=100, tolerance=0.01, controlPoints=10000):
     
-    
-    #random rotation for testing
-    rx = np.array([[ 1, 0,  0],
-               [ 0,  math.cos(r1),  -math.sin(r1)],
-               [ 0,  math.sin(r1),  math.cos(r1)]])
-    ry = np.array([[  math.cos(r2), 0,   math.sin(r2)],
-               [ 0,  1,  0],
-               [ -math.sin(r2),  0,  math.cos(r2)]])
-    
-    rz = np.array([[ math.cos(r3), -math.sin(r3),  0],
-               [ math.sin(r3),  math.cos(r3),  0],
-               [ 0,  0,  1]])
-    r =np.dot(rx, np.dot(ry,rz))
-    
-    
-    
-    A = np.array(PyntCloud.from_file(src).points)[:,0:3]
-    original = A
-    B = np.array(PyntCloud.from_file(dst).points)[:,0:3]
-    
-    #applying random rotation
-    A = np.dot(r, A.T).T + 200
-    
-    
+    A = src
+    B = dst
     #plotting the initial positions
     plt.figure()
     ax = plt.subplot(1, 1, 1, projection='3d')
     ax.scatter(A[:, 0], A[:, 1], A[:, 2], c='r',s=0.05)
     ax.scatter(B[:, 0], B[:, 1], B[:, 2], c='g',s=0.05)
-    plt.savefig("plots/"+src.split(".")[0]+"_0")
+    plt.savefig("plots/"+"plot_0")
     plt.pause(0.5)
     
     
@@ -101,7 +74,7 @@ def icp(src, dst, maxIteration=500, tolerance=0.01, controlPoints=10000):
         print(lastErr - meanErr)
         if abs(lastErr - meanErr) < tolerance:
             #Local minima problem
-            if lastErr > 5:
+            if lastErr > 13:
                 
                 #PCA analysis
                 pca = PCA(n_components=3)
@@ -134,10 +107,15 @@ def icp(src, dst, maxIteration=500, tolerance=0.01, controlPoints=10000):
                 P = P + np.array([T for j in range(P.shape[0])])
                 rotcounter = rotcounter + 1
                 if rotcounter > 3:
-                    print("Face not matched")
+                    print("Not the same face, faces not matched")
                     break
+                
+            elif lastErr < 13 and lastErr > 4:
+                print("Not the same face, faces  matched")
+                break
+                
             else:
-                print("Face matched")
+                print("Same face, faces matched")
                 break
         lastErr = meanErr
         
@@ -147,11 +125,11 @@ def icp(src, dst, maxIteration=500, tolerance=0.01, controlPoints=10000):
         ax = plt.subplot(1, 1, 1, projection='3d')
         ax.scatter(P[:, 0], P[:, 1], P[:, 2], c='r',s=0.05)
         ax.scatter(Q[:, 0], Q[:, 1], Q[:, 2], c='g',s=0.05)
-        plt.savefig("plots/"+src.split(".")[0]+"_"+str(i+1))
+        plt.savefig("plots/"+"plot_"+str(i+1))
         plt.pause(0.5)
     plt.show(block = False)
         
     # backtracking the overall transformation
-    R, T = optimal_transform(original,A)
+    R, T = optimal_transform(src,A)
     
-    return R, T, A
+    return R, T
