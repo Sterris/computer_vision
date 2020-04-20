@@ -59,7 +59,7 @@ def icp(src, dst, maxIteration=100, tolerance=0.01, controlPoints=10000):
     # extracting the random points
     P = np.array([A[i] for i in sampleA])
     Q = np.array([B[i] for i in sampleB])
-
+    cat = 1
     for i in range(maxIteration):
         print("Iteration : " + str(i) + " with Err : " + str(lastErr))
         dis, index = nearest_neighbor_2(P, Q)
@@ -112,10 +112,12 @@ def icp(src, dst, maxIteration=100, tolerance=0.01, controlPoints=10000):
                 
             elif lastErr < 13 and lastErr > 4:
                 print("Not the same face, faces  matched")
+                cat = 2
                 break
                 
             else:
                 print("Same face, faces matched")
+                cat = 3
                 break
         lastErr = meanErr
         
@@ -127,9 +129,10 @@ def icp(src, dst, maxIteration=100, tolerance=0.01, controlPoints=10000):
         ax.scatter(Q[:, 0], Q[:, 1], Q[:, 2], c='g',s=0.05)
         plt.savefig("plots/"+"plot_"+str(i+1))
         plt.pause(0.5)
+    R, T = optimal_transform(A,src)
     plt.show(block = False)
         
     # backtracking the overall transformation
-    R, T = optimal_transform(src,A)
+
     
-    return R, T
+    return R, T, lastErr, i, cat
